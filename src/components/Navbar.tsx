@@ -60,7 +60,7 @@ const Navbar: React.FC = () => {
         <p className="text-3xl">The Crafted Chapter</p>
       </Link>
 
-      {/* Hamburger Menu Button */}
+      {/* Menu Button */}
       <button 
         className="sm:hidden p-2"
         onClick={() => setShowMobileMenu(!showMobileMenu)}

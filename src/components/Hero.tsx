@@ -23,9 +23,9 @@ const Hero: React.FC = () => {
           </h1>
           <div 
             onClick={handleShopNow}
-            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity text-blue-200"
           >
-            <p className="font-semibold text-sm md:text-base">SHOP NOW</p>
+            <p className="font-semibold text-blue-600 text-sm md:text-base">SHOP NOW</p>
             <p className="w-8 md:w-11 h-[1px] bg-[#414141]"></p>
           </div>
         </div>
