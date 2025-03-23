@@ -3,7 +3,7 @@ const assets = {
     // search_icon: new URL("./search_icon.png", import.meta.url).href,
     profile_icon: new URL("./profile_icon.svg", import.meta.url).href,
     cart_icon: new URL("./cart_icon.png", import.meta.url).href,
-    menu_icon: new URL("./menu_icon.png", import.meta.url).href,
+    menu_icon: new URL("./menu_icon.svg", import.meta.url).href,
     
     hero_section: new URL("./hero_section.jpg", import.meta.url).href,
     exchange_icon: new URL("./exchange_icon.png", import.meta.url).href,

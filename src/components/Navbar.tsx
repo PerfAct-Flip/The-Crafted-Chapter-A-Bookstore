@@ -1,15 +1,18 @@
 import { useContext, useState, useRef, useEffect } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom"; 
+import { Link, useNavigate } from "react-router-dom"; 
 import { ShopContext } from "../context/ShopContext";
 import { CartContext } from "../context/CartContext";
 import books from "../data/books.json";
 import assets from "../assets/assets";
+import MenuOptions from './MenuOptions';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   
   const context = useContext(ShopContext);
@@ -57,6 +60,30 @@ const Navbar: React.FC = () => {
         <p className="text-3xl">The Crafted Chapter</p>
       </Link>
 
+      {/* Hamburger Menu Button */}
+      <button 
+        className="sm:hidden p-2"
+        onClick={() => setShowMobileMenu(!showMobileMenu)}
+      >
+        <img src={assets.menu_icon} alt="Menu" className="w-6 h-6" />
+      </button>
+
+      {/* Mobile Menu */}
+      {showMobileMenu && (
+        <div 
+          ref={menuRef}
+          className="absolute top-full right-0 mt-2 bg-white border rounded-lg shadow-lg z-50 sm:hidden w-48"
+        >
+          <MenuOptions 
+            isMobile={true} 
+            onItemClick={() => setShowMobileMenu(false)} 
+          />
+        </div>
+      )}
+
+      {/* Desktop Menu */}
+      <MenuOptions />
+
       {/* Search Bar */}
       <div ref={searchRef} className="hidden sm:block flex-1 max-w-md mx-8 relative">
         <div className="relative">
@@ -103,14 +130,6 @@ const Navbar: React.FC = () => {
           )}
         </div>
       </div>
-
-      <ul className="hidden sm:flex gap-5 text-sm sm:text-base text-gray-700">
-        {["/", "/collection", "/about", "/contact"].map((path, index) => (
-          <NavLink key={index} to={path} className="flex flex-col items-center gap-1">
-            <p>{path.replace("/", "").toUpperCase() || "HOME"}</p>
-          </NavLink>
-        ))}
-      </ul>
 
       <div className="flex items-center gap-6">
         <div className="relative group">
