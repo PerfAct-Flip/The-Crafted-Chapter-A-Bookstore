@@ -6,7 +6,7 @@ A sophisticated online bookstore built with React, TypeScript, and Tailwind CSS.
 
 ## ✨ Live Demo
 
-[Visit The Crafted Chapter](https://the-crafted-chapter.vercel.app)
+[Visit The Crafted Chapter](https://thecraftedchapter.netlify.app/)
 
 ## 🎯 Key Features
 
