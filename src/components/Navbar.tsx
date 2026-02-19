@@ -4,6 +4,7 @@ import { ShopContext } from "../context/ShopContext";
 import { CartContext } from "../context/CartContext";
 import assets from "../assets/assets";
 import MenuOptions from './MenuOptions';
+import { Heart } from "lucide-react";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
@@ -177,6 +178,15 @@ const Navbar: React.FC = () => {
           )}
         </div>
 
+
+        <Link to="/wishlist" className="relative group">
+          <Heart className="w-5 h-5 cursor-pointer text-gray-700 group-hover:text-red-500 transition-colors" />
+          {context.wishlist.length > 0 && (
+            <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-red-500 text-white aspect-square rounded-full text-[8px]">
+              {context.wishlist.length}
+            </p>
+          )}
+        </Link>
 
         <Link to="/cart" className="relative">
           <img src={assets.cart_icon} className="w-5 cursor-pointer" alt="Cart" />

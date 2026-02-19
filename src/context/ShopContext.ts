@@ -18,6 +18,8 @@ interface ShopContextType {
   setShowSearch: (show: boolean) => void;
   products: Book[];
   setProducts: (products: Book[]) => void;
+  wishlist: string[];
+  toggleWishlist: (productId: string) => void;
 }
 
 // Create the context with a default value of `null`

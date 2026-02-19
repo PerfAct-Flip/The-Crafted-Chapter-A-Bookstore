@@ -6,6 +6,10 @@ import { useAuth } from "./AuthContext";
 const ShopContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { token, login } = useAuth();
   const [products, setProducts] = useState<Book[]>([]);
+  const [wishlist, setWishlist] = useState<string[]>(() => {
+    const saved = localStorage.getItem("wishlist");
+    return saved ? JSON.parse(saved) : [];
+  });
 
   // Adapter for login -> setToken compatibility
   const setToken = (t: string) => login(t);
@@ -28,11 +32,34 @@ const ShopContextProvider: React.FC<{ children: React.ReactNode }> = ({ children
     fetchProducts();
   }, []);
 
+  // Save wishlist to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+  }, [wishlist]);
+
+  const toggleWishlist = (productId: string) => {
+    setWishlist((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
   // Function to toggle search visibility
   const setShowSearch = (show: boolean) => console.log("Search visibility:", show);
 
   return (
-    <ShopContext.Provider value={{ token, setToken, setShowSearch, products, setProducts }}>
+    <ShopContext.Provider
+      value={{
+        token,
+        setToken,
+        setShowSearch,
+        products,
+        setProducts,
+        wishlist,
+        toggleWishlist,
+      }}
+    >
       {children}
     </ShopContext.Provider>
   );
