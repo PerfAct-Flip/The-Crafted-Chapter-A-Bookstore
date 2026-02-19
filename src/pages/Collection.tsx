@@ -1,20 +1,22 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import books from '../data/books.json';
+import { ShopContext } from '../context/ShopContext';
 import Title from '../components/Title';
+
 const Collection: React.FC = () => {
+  const context = useContext(ShopContext);
+  const products = context?.products || [];
   const [selectedGenres, setSelectedGenres] = useState<Set<string>>(new Set());
+
   // get all genres
-  
   const allGenres = useMemo(() => {
     const genres = new Set<string>();
-    books.forEach(book => {
+    products.forEach(book => {
       book.genres.forEach(genre => genres.add(genre));
     });
     return Array.from(genres);
-  }, []);
+  }, [products]);
 
-  
   const toggleGenre = (genre: string) => {
     const newSelectedGenres = new Set(selectedGenres);
     if (selectedGenres.has(genre)) {
@@ -25,18 +27,17 @@ const Collection: React.FC = () => {
     setSelectedGenres(newSelectedGenres);
   };
 
-  
   const clearFilters = () => {
     setSelectedGenres(new Set());
   };
 
   // Filtering books based on selected genres 
   const filteredBooks = useMemo(() => {
-    if (selectedGenres.size === 0) return books;
-    return books.filter(book => 
+    if (selectedGenres.size === 0) return products;
+    return products.filter(book =>
       book.genres.some(genre => selectedGenres.has(genre))
     );
-  }, [selectedGenres]);
+  }, [selectedGenres, products]);
 
   return (
     <div className="my-10">
@@ -65,11 +66,10 @@ const Collection: React.FC = () => {
             <button
               key={genre}
               onClick={() => toggleGenre(genre)}
-              className={`px-4 py-2 rounded-full text-sm transition-colors ${
-                selectedGenres.has(genre)
+              className={`px-4 py-2 rounded-full text-sm transition-colors ${selectedGenres.has(genre)
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+                }`}
             >
               {genre}
               {selectedGenres.has(genre) && (
@@ -113,11 +113,10 @@ const Collection: React.FC = () => {
                   {book.genres.map((genre, index) => (
                     <span
                       key={index}
-                      className={`text-xs px-2 py-1 rounded-full ${
-                        selectedGenres.has(genre)
+                      className={`text-xs px-2 py-1 rounded-full ${selectedGenres.has(genre)
                           ? 'bg-blue-100 text-blue-800'
                           : 'bg-gray-100 text-gray-600'
-                      }`}
+                        }`}
                     >
                       {genre}
                     </span>

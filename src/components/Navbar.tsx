@@ -1,8 +1,7 @@
 import { useContext, useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom"; 
+import { Link, useNavigate } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import { CartContext } from "../context/CartContext";
-import books from "../data/books.json";
 import assets from "../assets/assets";
 import MenuOptions from './MenuOptions';
 
@@ -14,9 +13,9 @@ const Navbar: React.FC = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  
   const context = useContext(ShopContext);
   const cartContext = useContext(CartContext);
+  const products = context?.products || [];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -29,18 +28,17 @@ const Navbar: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  
-  const filteredBooks = books.filter(book => 
+  const filteredBooks = products.filter(book =>
     book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     book.author.toLowerCase().includes(searchQuery.toLowerCase())
-  ).slice(0, 5); 
+  ).slice(0, 5);
 
   if (!context) {
     console.error("ShopContext is null!");
     return null;
   }
-  
-  const { token, setToken, setCartItems } = context;
+
+  const { token, setToken } = context;
 
   const getCartItemsCount = () => {
     if (!cartContext) return 0;
@@ -50,8 +48,10 @@ const Navbar: React.FC = () => {
   const logout = () => {
     localStorage.removeItem("token");
     setToken("");
-    setCartItems({});
-    navigate("/login"); 
+    if (cartContext) {
+      cartContext.clearCart(true);
+    }
+    navigate("/login");
   };
 
   return (
@@ -61,7 +61,7 @@ const Navbar: React.FC = () => {
       </Link>
 
       {/* Menu Button */}
-      <button 
+      <button
         className="sm:hidden p-2"
         onClick={() => setShowMobileMenu(!showMobileMenu)}
       >
@@ -70,13 +70,13 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Menu */}
       {showMobileMenu && (
-        <div 
+        <div
           ref={menuRef}
           className="absolute top-full right-0 mt-2 bg-white border rounded-lg shadow-lg z-50 sm:hidden w-48"
         >
-          <MenuOptions 
-            isMobile={true} 
-            onItemClick={() => setShowMobileMenu(false)} 
+          <MenuOptions
+            isMobile={true}
+            onItemClick={() => setShowMobileMenu(false)}
           />
         </div>
       )}
@@ -132,21 +132,51 @@ const Navbar: React.FC = () => {
       </div>
 
       <div className="flex items-center gap-6">
+        {/* Auth Section */}
         <div className="relative group">
-          <img 
-            onClick={() => (token ? null : navigate("/login"))} 
-            className="w-5 cursor-pointer" 
-            src={assets.profile_icon} 
-            alt="Profile" 
-          />
-          {token && (
-            <div className="group-hover:block hidden absolute right-0 pt-4 bg-white shadow-md p-3 rounded-md">
-              <p className="cursor-pointer hover:text-black">My Profile</p>
-              <p onClick={() => navigate("/orders")} className="cursor-pointer hover:text-black">Orders</p>
-              <p onClick={logout} className="cursor-pointer hover:text-black">Logout</p>
-            </div>
+          {!token ? (
+            /* LOGIN BUTTON */
+            <button
+              onClick={() => navigate("/login")}
+              className="px-4 py-1 border rounded-full text-sm hover:bg-black hover:text-white transition"
+            >
+              Login
+            </button>
+          ) : (
+            /* PROFILE + DROPDOWN */
+            <>
+              <img
+                className="w-5 cursor-pointer"
+                src={assets.profile_icon}
+                alt="Profile"
+              />
+
+              <div className="group-hover:block hidden absolute right-0 pt-4 z-50">
+                <div className="flex flex-col gap-2 w-40 py-3 px-5 bg-white text-gray-500 rounded-xl shadow-xl border border-gray-100">
+                  <p
+                    onClick={() => navigate("/profile")}
+                    className="cursor-pointer hover:text-black transition-colors"
+                  >
+                    My Profile
+                  </p>
+                  <p
+                    onClick={() => navigate("/orders")}
+                    className="cursor-pointer hover:text-black transition-colors"
+                  >
+                    My Orders
+                  </p>
+                  <p
+                    onClick={logout}
+                    className="cursor-pointer hover:text-red-600 transition-colors"
+                  >
+                    Logout
+                  </p>
+                </div>
+              </div>
+            </>
           )}
         </div>
+
 
         <Link to="/cart" className="relative">
           <img src={assets.cart_icon} className="w-5 cursor-pointer" alt="Cart" />

@@ -1,20 +1,23 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useContext } from "react";
 import Title from "./Title";
-import books from "../data/books.json";
 import { Link } from "react-router-dom";
+import { ShopContext } from "../context/ShopContext";
 
 const LatestCollection: React.FC = () => {
+  const context = useContext(ShopContext);
+  const products = context?.products || [];
+
   // Get the last 5 books from the collection
   const latestBooks = useMemo(() => {
-    return [...books].slice(-5).reverse();
-  }, []);
+    return [...products].slice(-5).reverse();
+  }, [products]);
 
   return (
     <div className="my-10 px-6">
       <div className='text-center text-3xl py-8'>
         <Title text1={'LATEST'} text2={'COLLECTIONS'} />
         <p className='w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600'>
-          Discover the latest arrivals in our collection. From bestsellers to new releases, 
+          Discover the latest arrivals in our collection. From bestsellers to new releases,
           we have something for everyone. Browse our collection today and find your next favorite book.
         </p>
       </div>
@@ -54,8 +57,8 @@ const LatestCollection: React.FC = () => {
 
       {/* View All Link */}
       <div className="text-center mt-8">
-        <Link 
-          to="/collection" 
+        <Link
+          to="/collection"
           className="inline-block px-6 py-2 border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-colors rounded-md"
         >
           View All Collections

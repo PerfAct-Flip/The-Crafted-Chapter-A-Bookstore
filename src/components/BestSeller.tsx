@@ -1,23 +1,25 @@
 
-
-import React, { useMemo } from "react";
+import React, { useMemo, useContext } from "react";
 import Title from "./Title";
-import books from "../data/books.json";
 import { Link } from "react-router-dom";
+import { ShopContext } from "../context/ShopContext";
 
 const BestSeller: React.FC = () => {
+  const context = useContext(ShopContext);
+  const products = context?.products || [];
+
   // Randomly select 5 books using Fisher-Yates shuffle algorithm
   const bestSellerBooks = useMemo(() => {
-    const shuffled = [...books]
+    const shuffled = [...products]
       .sort(() => Math.random() - 0.5)
       .slice(0, 5);
     return shuffled;
-  }, []); 
+  }, [products]);
 
   return (
     <div className="my-10 px-6">
       <div className='text-center text-3xl py-8'>
-        <Title text1={'FEATURED'} text2={'BOOKS'}/>
+        <Title text1={'FEATURED'} text2={'BOOKS'} />
         <p className='w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600'>
           Discover our handpicked selection of amazing books.
         </p>

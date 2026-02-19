@@ -1,9 +1,8 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useState, useContext } from "react";
-import books from "../data/books.json";
 import StarRating from "../components/StarRating";
 import { CartContext } from "../context/CartContext";
-import { toast } from "react-toastify";
+import { ShopContext } from "../context/ShopContext";
 
 interface Review {
   user: string;
@@ -13,7 +12,9 @@ interface Review {
 
 const Product: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
-  const book = books.find((b) => b.id === productId);
+  const shopContext = useContext(ShopContext);
+  const products = shopContext?.products || [];
+  const book = products.find((b) => b.id === productId);
   const cartContext = useContext(CartContext);
   const navigate = useNavigate();
 
@@ -22,29 +23,22 @@ const Product: React.FC = () => {
     { user: "Sneha", rating: 4, comment: "Loved the writing style." }
   ]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!cartContext || !productId) return;
-    
-    cartContext.addToCart(productId);
-    toast.success("Added to cart successfully!");
+
+    await cartContext.addToCart(productId);
   };
 
-  const handleBuyNow = () => {
+  const handleBuyNow = async () => {
     if (!cartContext || !productId) return;
 
-   
-    cartContext.clearCart();
-    
-    
-    cartContext.addToCart(productId);
-    
-   
+    await cartContext.clearCart(true);
+    await cartContext.addToCart(productId);
+
     navigate("/cart");
-    
-    toast.success("Proceeding to checkout!");
   };
 
-  
+
   if (!book) {
     return (
       <div className="text-center p-8">
@@ -56,91 +50,130 @@ const Product: React.FC = () => {
     );
   }
 
-  const similarBooks = books
+  const similarBooks = products
     .filter((b) => b.id !== productId && b.id !== undefined)
     .slice(0, 4);
 
   return (
-    <div className="flex flex-col md:flex-row gap-8 p-6">
-      {/* Book Cover */}
-      <img 
-        src={book.coverImage} 
-        alt={book.title} 
-        className="w-64 shadow-md rounded-lg object-cover"
-      />
-
-      {/* Book Details */}
+    <div className="flex flex-col lg:flex-row gap-12 p-6 max-w-7xl mx-auto">
+      {/* Main Content Area: Cover + Details + Reviews */}
       <div className="flex-1">
-        <h1 className="text-2xl font-bold">{book.title}</h1>
-        <p className="text-gray-600">by {book.author}</p>
-        <p className="text-xl font-semibold text-green-600 mt-2">₹{book.price}</p>
-        <p className="mt-4 text-gray-700">{book.description}</p>
-        <div className="mt-4">
-          <h3 className="font-semibold text-gray-700">Genres:</h3>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {book.genres.map((genre, index) => (
-              <span 
-                key={index}
-                className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
-              >
-                {genre}
-              </span>
-            ))}
+        <div className="flex flex-col gap-8">
+          {/* Book Cover */}
+          <div className="w-full max-w-[500px] mx-auto lg:mx-0">
+            <img
+              src={book.coverImage}
+              alt={book.title}
+              className="w-full h-auto max-h-[600px] shadow-2xl rounded-2xl object-contain bg-gray-50 p-2 border"
+            />
           </div>
-        </div>
 
-        {/* Buy Buttons */}
-        <div className="mt-6 flex gap-4">
-          <button 
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
-            onClick={handleAddToCart}
-          >
-            Add to Cart 
-          </button>
-          <button 
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition-colors"
-            onClick={handleBuyNow}
-          >
-            Buy Now
-          </button>
-        </div>
-
-        {/* Reviews Section */}
-        <div className="mt-8">
-          <h2 className="text-lg font-semibold">Reviews</h2>
-          {reviews.length > 0 ? (
-            reviews.map((review, index) => (
-              <div key={index} className="border p-3 my-2 rounded-md">
-                <p className="font-semibold">{review.user}</p>
-                <StarRating rating={review.rating} />
-                <p>{review.comment}</p>
+          {/* Book Details */}
+          <div className="flex-1 space-y-6">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{book.title}</h1>
+              <p className="text-lg text-gray-600 mt-1 italic">by {book.author}</p>
+              <div className="flex items-center gap-4 mt-3">
+                <p className="text-2xl font-bold text-green-700">₹{book.price}</p>
+                <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded uppercase tracking-wide">
+                  In Stock
+                </span>
               </div>
-            ))
-          ) : (
-            <p className="text-gray-500">No reviews yet</p>
-          )}
+            </div>
+
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">Description</h3>
+              <p className="text-gray-700 leading-relaxed text-justify">{book.description}</p>
+            </div>
+
+            <div className="pt-4">
+              <h3 className="font-semibold text-gray-800 mb-3">Genres</h3>
+              <div className="flex flex-wrap gap-2">
+                {book.genres.map((genre, index) => (
+                  <span
+                    key={index}
+                    className="px-4 py-1.5 bg-blue-50 text-blue-700 border border-blue-100 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors"
+                  >
+                    {genre}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Buy Buttons */}
+            <div className="flex flex-wrap gap-4 pt-6">
+              <button
+                className="flex-1 min-w-[200px] bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2"
+                onClick={handleAddToCart}
+              >
+                Add to Cart
+                {productId && cartContext?.cartItems[productId] ? (
+                  <span className="bg-white text-blue-600 text-xs px-2 py-0.5 rounded-full border border-blue-200 shadow-sm animate-pulse">
+                    {cartContext.cartItems[productId]}
+                  </span>
+                ) : null}
+              </button>
+              <button
+                className="flex-1 min-w-[200px] bg-white border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white font-bold py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all active:scale-95"
+                onClick={handleBuyNow}
+              >
+                Buy Now
+              </button>
+            </div>
+
+            {/* Reviews Section */}
+            <div className="mt-12 border-t pt-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Customer Reviews</h2>
+              {reviews.length > 0 ? (
+                <div className="space-y-6">
+                  {reviews.map((review, index) => (
+                    <div key={index} className="bg-gray-50 p-5 rounded-2xl border border-gray-100">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="font-bold text-gray-800">{review.user}</p>
+                        <StarRating rating={review.rating} />
+                      </div>
+                      <p className="text-gray-600 italic">"{review.comment}"</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 italic">No reviews yet. Be the first to review!</p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Similar Books Section */}
-      <div className="mt-8 md:mt-0">
-        <h2 className="text-lg font-semibold">You May Also Like</h2>
-        <div className="grid grid-cols-2 gap-4 mt-4">
-          {similarBooks.map((b) => (
-            <Link 
-              key={b.id} 
-              to={`/product/${b.id}`} 
-              className="border p-3 rounded-md shadow-md hover:shadow-lg transition-shadow"
-            >
-              <img 
-                src={b.coverImage} 
-                alt={b.title} 
-                className="w-32 rounded-md object-cover"
-              />
-              <p className="font-medium mt-2">{b.title}</p>
-              <p className="text-sm text-gray-500">{b.author}</p>
-            </Link>
-          ))}
+      {/* Sidebar: Similar Books Section */}
+      <div className="lg:w-80 shrink-0">
+        <div className="sticky top-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-6 pb-2 border-b-2 border-blue-600 inline-block">
+            You May Also Like
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
+            {similarBooks.map((b) => (
+              <Link
+                key={b.id}
+                to={`/product/${b.id}`}
+                className="group flex gap-4 bg-white p-3 rounded-xl border border-transparent hover:border-gray-200 hover:shadow-xl transition-all"
+              >
+                <div className="w-20 shrink-0">
+                  <img
+                    src={b.coverImage}
+                    alt={b.title}
+                    className="w-full aspect-[2/3] object-cover rounded-lg shadow-sm group-hover:shadow-md transition-shadow"
+                  />
+                </div>
+                <div className="flex flex-col justify-center">
+                  <p className="font-bold text-gray-800 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                    {b.title}
+                  </p>
+                  <p className="text-sm text-gray-500 line-clamp-1">{b.author}</p>
+                  <p className="text-blue-600 font-bold mt-1">₹{b.price}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </div>
